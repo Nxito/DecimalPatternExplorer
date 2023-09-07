@@ -1,0 +1,120 @@
+<html>
+
+<head>
+  <style>
+    body {
+      margin: 0px;
+      padding: 0px;
+    }
+
+    #myCanvas {
+      background: lightgrey;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
+
+</head>
+
+<body>
+  <div>
+    Se establecera una dirección a cada numero del 0 al 9
+    Luego, se especificara un numero o resultado con decimales y cogerá N digitos
+    Se creará un patron con el numero o resultado en el canvas
+  </div>
+    <form id="divisionForm">
+        <label for="numerador">Numerador:</label>
+        <input type="text" id="numerador" value="5" required><br>
+        <label for="denominador">Denominador:</label>
+        <input type="text" id="denominador" value="7" required><br>
+        <label for="precision">Precisión (máximo 100):</label>
+        <input type="number" id="precision" value="50" min="1" max="100" required><br>
+        <input type="submit" value="Calcular">
+    </form>
+    <p id="resultado">Resultado:</p>
+  <canvas id="myCanvas" width="1000" height="800"></canvas>
+  <script>
+
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    var cX = canvas.width / 2;
+    var cY = canvas.height / 2;
+    var l = 20;
+    var centerPointWidth = 3;
+    var centerPointHeight = 3;
+    ctx.fillStyle = "red";
+    ctx.fillRect(cX, cY, centerPointWidth, centerPointHeight);
+    function drawLine(n) {
+      if (isNaN(n)) {
+        return
+      }
+      var angle = (n / 5) * Math.PI;
+
+      var x2 = cX + Math.cos(angle) * l;
+      var y2 = cY + Math.sin(angle) * l;
+
+      ctx.beginPath();
+      ctx.moveTo(cX, cY);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      cX = x2;
+      cY = y2;
+    }
+
+    function divide(numerador = 1, denominador = 3, precision = 30) {//obtiene mas decimales
+      numerador = new Decimal(numerador.toString());
+
+      denominador = new Decimal(denominador.toString());
+      Decimal.set({ precision });
+      const resultado = numerador.div(denominador, precision);
+
+      console.log({ resultado, numerador, denominador });
+      return resultado.toString()
+    }
+    function proccessdigits(n, max = 100, callback) {
+      var nStr = n.toString();
+      if (isNaN(n)) {
+        return
+      }
+      var decPos = nStr.indexOf('.');
+
+      if (decPos === -1 || nStr.length <= max) {
+        for (var i = 0; i < nStr.length; i++) {
+          var digit = nStr.charAt(i);
+          callback(digit);
+        }
+      } else {
+        for (var i = 0; i < decPos + max + 1; i++) {
+          var digit = nStr.charAt(i);
+          callback(digit);
+        }
+      }
+    }
+    function check(digit) {
+      console.log("Dígito:", digit);
+      drawLine(digit)
+    }
+ document.getElementById('divisionForm').addEventListener('submit', function (event) {
+ event.preventDefault();
+ctx.reset()
+cX = canvas.width / 2;
+ cY = canvas.height / 2;
+ctx.moveTo(cX, cY);
+ const numeradorStr = document.getElementById('numerador').value;
+ const denominadorStr = document.getElementById('denominador').value; 
+ const precision = parseInt(document.getElementById('precision').value);
+
+const numerador = new Decimal(numeradorStr);
+const denominador = new Decimal(denominadorStr);  
+const resultado = divide(numerador,denominador,precision); 
+proccessdigits(resultado, 1000, check);
+
+
+document.getElementById('resultado').innerText = resultado.toString();
+        });
+ 
+
+  </script>
+</body>
+
+</html>
